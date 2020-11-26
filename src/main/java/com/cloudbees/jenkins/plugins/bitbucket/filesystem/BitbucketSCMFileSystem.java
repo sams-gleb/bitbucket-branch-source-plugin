@@ -37,6 +37,10 @@ import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
+import com.cloudbees.jenkins.plugins.bitbucket.endpoints.AbstractBitbucketEndpoint;
+import com.cloudbees.jenkins.plugins.bitbucket.endpoints.BitbucketEndpointConfiguration;
+import com.cloudbees.jenkins.plugins.bitbucket.endpoints.BitbucketServerEndpoint;
+import com.cloudbees.jenkins.plugins.bitbucket.server.BitbucketServerVersion;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
@@ -178,8 +182,17 @@ public class BitbucketSCMFileSystem extends SCMFileSystem {
                 } else if (pr.getCheckoutStrategy() == ChangeRequestCheckoutStrategy.HEAD) {
                     ref = "pull-requests/" + pr.getId() + "/from";
                 } else if (pr.getCheckoutStrategy() == ChangeRequestCheckoutStrategy.MERGE) {
-                    // No longer supported since bitbucket server v7, falls back to heavycheckout
-                    ref = "pull-requests/" + pr.getId() + "/merge";
+                    // Bitbucket server v7 doesn't support `merge` endpoint
+                    // We don't return `ref` when working with v7
+                    // so that pipeline steps retrieving single files fall back to heavyweight checkout properly
+                    AbstractBitbucketEndpoint endpointConfig = BitbucketEndpointConfiguration.get().findEndpoint(src.getServerUrl());
+                    final BitbucketServerEndpoint endpoint = endpointConfig instanceof BitbucketServerEndpoint ?
+                            (BitbucketServerEndpoint) endpointConfig : null;
+                    if (endpoint != null) {
+                        if(endpoint.getServerVersion() != BitbucketServerVersion.VERSION_7) {
+                            ref = "pull-requests/" + pr.getId() + "/merge";
+                        }
+                    }
                 }
             } else if (head instanceof BitbucketTagSCMHead) {
                 ref = "tags/" + head.getName();
