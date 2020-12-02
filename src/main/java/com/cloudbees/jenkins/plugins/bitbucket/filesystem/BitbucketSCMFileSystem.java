@@ -182,16 +182,17 @@ public class BitbucketSCMFileSystem extends SCMFileSystem {
                 } else if (pr.getCheckoutStrategy() == ChangeRequestCheckoutStrategy.HEAD) {
                     ref = "pull-requests/" + pr.getId() + "/from";
                 } else if (pr.getCheckoutStrategy() == ChangeRequestCheckoutStrategy.MERGE) {
-                    // Bitbucket server v7 doesn't support `merge` endpoint
+                    // Bitbucket server v7 doesn't have the `merge` ref for PRs
                     // We don't return `ref` when working with v7
-                    // so that pipeline steps retrieving single files fall back to heavyweight checkout properly
+                    // so that pipeline falls back to heavyweight checkout properly
                     AbstractBitbucketEndpoint endpointConfig = BitbucketEndpointConfiguration.get().findEndpoint(src.getServerUrl());
                     final BitbucketServerEndpoint endpoint = endpointConfig instanceof BitbucketServerEndpoint ?
                             (BitbucketServerEndpoint) endpointConfig : null;
-                    if (endpoint != null) {
-                        if(endpoint.getServerVersion() != BitbucketServerVersion.VERSION_7) {
-                            ref = "pull-requests/" + pr.getId() + "/merge";
-                        }
+                    if (endpoint != null && endpoint.getServerVersion() != BitbucketServerVersion.VERSION_7) {
+                        ref = "pull-requests/" + pr.getId() + "/merge";
+                    } else {
+                        // returning null to fallback to heavyweight checkout
+                        return null;
                     }
                 }
             } else if (head instanceof BitbucketTagSCMHead) {
