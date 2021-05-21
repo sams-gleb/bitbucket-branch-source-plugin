@@ -91,6 +91,8 @@ public class BitbucketSCMSourceContext extends SCMSourceContext<BitbucketSCMSour
      */
     private boolean sendSuccessNotificationForUnstableBuild;
 
+    private boolean sendNotificationsForPrBuildsOnly;
+
     /**
      * Constructor.
      *
@@ -213,6 +215,10 @@ public class BitbucketSCMSourceContext extends SCMSourceContext<BitbucketSCMSour
      */
     public final boolean sendSuccessNotificationForUnstableBuild() {
         return sendSuccessNotificationForUnstableBuild;
+    }
+
+    public final boolean sendNotificationsForPrBuildsOnly() {
+        return sendNotificationsForPrBuildsOnly;
     }
 
     /**
@@ -349,6 +355,12 @@ public class BitbucketSCMSourceContext extends SCMSourceContext<BitbucketSCMSour
     @NonNull
     public final BitbucketSCMSourceContext withSendSuccessNotificationForUnstableBuild(boolean isUnstableBuildSuccess) {
         this.sendSuccessNotificationForUnstableBuild = isUnstableBuildSuccess;
+        return this;
+    }
+
+    @NonNull
+    public final BitbucketSCMSourceContext withSendNotificationsForPrBuildsOnly(boolean isSendPrOnly) {
+        this.sendNotificationsForPrBuildsOnly = isSendPrOnly;
         return this;
     }
 

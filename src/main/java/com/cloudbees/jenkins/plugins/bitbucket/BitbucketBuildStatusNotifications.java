@@ -184,6 +184,11 @@ public class BitbucketBuildStatusNotifications {
         if (hash == null) {
             return;
         }
+        if (sourceContext.sendNotificationsForPrBuildsOnly() && !(r instanceof PullRequestSCMRevision)) {
+            listener.getLogger().println("[Bitbucket] Skip notifications for non PR builds");
+            return;
+        }
+
         boolean shareBuildKeyBetweenBranchAndPR = sourceContext
             .filters().stream()
             .anyMatch(filter -> filter instanceof ExcludeOriginPRBranchesSCMHeadFilter);

@@ -45,6 +45,9 @@ public class BitbucketBuildStatusNotificationsTrait extends SCMSourceTrait {
      */
     private boolean sendSuccessNotificationForUnstableBuild;
 
+
+    private boolean sendNotificationsForPrBuildsOnly;
+
     /**
      * Constructor.
      *
@@ -61,11 +64,20 @@ public class BitbucketBuildStatusNotificationsTrait extends SCMSourceTrait {
         sendSuccessNotificationForUnstableBuild = isSendSuccess;
     }
 
+    @DataBoundSetter
+    public void setSendNotificationsForPrBuildsOnly(boolean isSendPrOnly) {
+        sendNotificationsForPrBuildsOnly = isSendPrOnly;
+    }
+
     /**
      * @return if unstable builds will be communicated as successful
      */
     public boolean getSendSuccessNotificationForUnstableBuild() {
         return this.sendSuccessNotificationForUnstableBuild;
+    }
+
+    public boolean getSendNotificationsForPrBuildsOnly() {
+        return this.sendNotificationsForPrBuildsOnly;
     }
 
     /**
@@ -74,6 +86,7 @@ public class BitbucketBuildStatusNotificationsTrait extends SCMSourceTrait {
     @Override
     protected void decorateContext(SCMSourceContext<?, ?> context) {
         ((BitbucketSCMSourceContext) context).withSendSuccessNotificationForUnstableBuild(getSendSuccessNotificationForUnstableBuild());
+        ((BitbucketSCMSourceContext) context).withSendNotificationsForPrBuildsOnly(getSendNotificationsForPrBuildsOnly());
     }
 
     /**
